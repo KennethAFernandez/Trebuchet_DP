@@ -1,9 +1,15 @@
 import sys
 import time
 
+
+# global variables used as counters for the recursive 
+# and Dynamic Progamming algorithms
 REC_COUNT = 0
 DP_COUNT = 0
 
+
+# Recursive algorithm to solve the problem & also counts
+# the amount of calls made by the program to the func.
 def rec(p_val, t_val):
 
     # Initialize counter
@@ -21,7 +27,9 @@ def rec(p_val, t_val):
     
     return min(max_vals)
 
-
+# Dynamic Programming Algorithm that uses a matrix to 
+# avoid recomputataion to compute the minimum number 
+# of throws necessary
 def dp(p_val, t_val):
 
     # Initialize Counter
@@ -55,6 +63,11 @@ def dp(p_val, t_val):
 
     # Return min val.
     return min(max_vals)
+
+# IMPLEMENT TRACEBACK STEP
+def traceback():
+    print('')
+
 
 
 if __name__ == '__main__':
