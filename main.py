@@ -16,6 +16,8 @@ def rec(p_val, t_val):
     if (p_val == 1): return t_val
 
     max_vals = []
+
+    # xth target i sone that lies between 1 & t inclusive
     for i in range(1, t_val):
         max_vals.append(1 + max(rec(p_val - 1, i - 1), rec(p_val, t_val - i)))
     
@@ -28,7 +30,7 @@ def dp(p_val, t_val):
     global DP_COUNT
     DP_COUNT += 1
 
-    # Check base cases
+    # Check base cases: T(p, 0), T(p, 1) & T(1, t)
     if (mtx[p_val - 1][t_val - 1] != -1):
         return mtx[p_val - 1][t_val - 1]
 
@@ -61,6 +63,8 @@ if __name__ == '__main__':
 
     print('\n===============================')
     print('Start of program! (Trebuchet)')
+
+    # Need this to run the recursive algo with larger inputs
     sys.setrecursionlimit(3000)
     # Initialize vars. & create matrix
     start = time.time()
@@ -73,7 +77,8 @@ if __name__ == '__main__':
         for j in range(1, p):
             mtx[j - 1][i - 1] = dp(j, i)   
     
-    # Print generated sol.
+    # T(p, t) represents the min. number of throws necessary in the worst
+    # case to find the max. length when given p & t
     print('===============================')
     print(f'Num. of Pumpkins  =>  [{p}]')
     print(f'Num. of Targets   =>  [{t}]')
@@ -81,8 +86,8 @@ if __name__ == '__main__':
     print(f'Num. Calls DP     =>  [{DP_COUNT}]')
     print(f'D.P. Solution     =>  [{dp(p, t)}]')
     # print('===============================')
-    # print(f'Num. Calls Rec.   =>  [{REC_COUNT}]')
     # print(f'Rec. Solution     =>  [{rec(p, t)}]')
+    # print(f'Num. Calls Rec.   =>  [{REC_COUNT}]')
     print('===============================')
     print(f'Time: {time.time() - start}\n')
 
