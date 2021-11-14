@@ -17,7 +17,7 @@ def rec(p_val, t_val):
     if t_val == 0 or t_val == 1: return t_val
     if p_val == 1: return t_val
 
-
+    # Just iterate through determing which of the sub-problem sols. to add
     for i in range(1, t_val):
         max_vals.append(1 + max(rec(p_val - 1, i - 1), rec(p_val, t_val - i)))
 
@@ -43,35 +43,46 @@ def dp(p_val, t_val):
     # number of throws in the worst case. Then store the one that 
     # minimizes the maximum number of throws
     for i in range(1, t_val + 1):
-        max_vals.append(1 + max(dp(p_val - 1, i - 1), dp(p_val, t_val - i)))
-
-    # Store values in DP table & traceback table to avoid recomputation
+        to_add =  max(dp(p_val - 1, i - 1), dp(p_val, t_val - i))
+        max_vals.append(1 + to_add)
+    # Store values in DP table
     mtx[p_val - 1][t_val - 1] = min(max_vals)
-    tb_mtx[p_val - 1][t_val - 1] = max_vals
 
+    # Store list in traceback table for the tracback step
+    tb_mtx[p_val - 1][t_val - 1] = max_vals
     return min(max_vals)
 
 
 def traceback(p_val, t_val, off_val, mtx, tb_mtx, targs):
 
-    # Check base cases p ==1 or t <= 1
-    if p_val == 1:
-        targs.append(i + 1 + off_val)
-        return
-
-    if t_val == 1 or t_val == 0:
+    # Check base cases
+    if p_val == 1 or t_val == 1 or t_val == 0:
         targs.append(off_val + 1)
+        # print(f'(Base) Targets:         {targs} ')
         return
 
+    # If there are multiple targets that can be attempted, chooses the target that is closest
     # Assigns the next target to the var. & append target
-    next_targ = 1 + tb_mtx[p_val - 1][t_val - 1].index(min(tb_mtx[p_val - 1][t_val - 1])) 
+    # print(f'Traceback:  {tb_mtx[p_val -1][t_val -1]}')
+    # print(f'Min:        {min(tb_mtx[p_val - 1][t_val - 1])}')
+    # print(f'Index:      {tb_mtx[p_val - 1][t_val - 1].index(min(tb_mtx[p_val - 1][t_val - 1]))}')
+    
+    val_idx = tb_mtx[p_val - 1][t_val - 1]
+    temp = val_idx.index(min(tb_mtx[p_val - 1][t_val - 1])) 
+    next_targ = temp + 1
     targs.append(off_val + next_targ)
 
-    # Recursive calls if worst case happens
+    # print(f'Next Targ:  {next_targ}')
+    # print(f'Targets:    {targs}')
+    # print('\n')
+    
+    # Recursive calls if worst case happens / increment offset value in else
     if (mtx[p_val - 1][t_val - next_targ - 1]) < (mtx[p_val - 2][next_targ - 2]):
         traceback(p_val - 1, next_targ - 1, off_val, mtx, tb_mtx, targs)
+
     else:
         traceback(p_val, t_val - next_targ, next_targ + off_val, mtx, tb_mtx, targs)
+
 
 
 if __name__ == '__main__':
@@ -85,9 +96,9 @@ if __name__ == '__main__':
     mtx = [[-1 for j in range(t + 1)] for i in range(p)]
     tb_mtx = [[-1 for j in range(t + 1)] for i in range(p)]
 
-    for i in range(1, t):
-        for j in range(1, p):
-            mtx[j - 1][i - 1] = dp(j, i)   
+    for i in range(1, p):
+        for j in range(1, t):
+            mtx[i - 1][j - 1] = dp(i, j)   
 
     sol = dp(p, t)
     traceback(p, t, 0, mtx, tb_mtx, targs_attempted)
