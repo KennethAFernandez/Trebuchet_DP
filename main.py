@@ -25,64 +25,82 @@ def rec(p_val, t_val):
 
 
 def dp(p_val, t_val):
+
+    # Initalize vars. 
     global DP_COUNT
     DP_COUNT += 1
     max_vals = []
+    temp = t_val
     
-    # If pumpkin exploded return the corresponding value from the mtx.
-    if (mtx[p_val - 1][t_val - 1] != -1):
-        return mtx[p_val - 1][t_val - 1]
-
-    # Check base cases: T(p, 0), T(p, 1) & T(1, t) - just return t_val
-    if t_val == 0 or t_val == 1 or p_val == 1:
-        mtx[p_val - 1][t_val - 1] = t_val
-        return t_val 
-
     # Break down into two sub-problems (p-1 & x-1) or (p & t-x)
     # Take maximum of two sub-problems since we are finding min.
     # number of throws in the worst case. Then store the one that 
     # minimizes the maximum number of throws
     for i in range(1, t_val + 1):
-        to_add =  max(dp(p_val - 1, i - 1), dp(p_val, t_val - i))
-        max_vals.append(1 + to_add)
-    # Store values in DP table
-    mtx[p_val - 1][t_val - 1] = min(max_vals)
 
-    # Store list in traceback table for the tracback step
-    tb_mtx[p_val - 1][t_val - 1] = max_vals
+        # to_add = 1 + max(mtx[p_val - 1][i - 1], mtx[p_val][t_val - i])
+        # Set values for the two sub problems so we can compare them
+        exploded = mtx[p_val - 1][i - 1]
+        survived = mtx[p_val][t_val - i]
+        to_add = max(exploded, survived)
+
+        # Determine if the pumpkin exploded or not
+        # if pumpking exploded, append negative value, if the pumpkin
+        # survived we just add the index to the TB table
+        if to_add < temp:
+            temp = to_add
+            if exploded >= survived:
+                # tb_vals.append(i * -1)
+                tb_mtx[p_val][t_val] = i * -1
+            else:
+                # tb_vals.append(i)
+                tb_mtx[p_val][t_val] = i
+
+        max_vals.append(1 + to_add)
+
+    # Set the value in the array
+    mtx[p_val][t_val] = min(max_vals)
+
+    # Cant do this here - WRONG
+    # tb_mtx[p_val][t_val] = min(tb_vals)
+
+    # Return min 
     return min(max_vals)
 
+def traceback(p_val, t_val, off_val):
+    # print(f'P: {p_val}')
+    # print(f'T: {t_val}')
+    val_idx = tb_mtx[p_val][t_val]
+    if val_idx < 0:
+        targ = val_idx * -1
+    else:
+        targ = val_idx
+    # targ = abs(val_idx)
+    # print(f'val_idx: {val_idx}')
+    # print(f'x: {targ}\n')
 
-def traceback(p_val, t_val, off_val, mtx, tb_mtx, targs):
-
-    # Check base cases
-    if p_val == 1 or t_val == 1 or t_val == 0:
-        targs.append(off_val + 1)
-        # print(f'(Base) Targets:         {targs} ')
+    # If the target value drops below 1, we can return because there
+    # is nothing left to do. The targets attempted array should be filled
+    if t_val <= 0:
         return
 
-    # If there are multiple targets that can be attempted, chooses the target that is closest
-    # Assigns the next target to the var. & append target
-    # print(f'Traceback:  {tb_mtx[p_val -1][t_val -1]}')
-    # print(f'Min:        {min(tb_mtx[p_val - 1][t_val - 1])}')
-    # print(f'Index:      {tb_mtx[p_val - 1][t_val - 1].index(min(tb_mtx[p_val - 1][t_val - 1]))}')
-    
-    val_idx = tb_mtx[p_val - 1][t_val - 1]
-    temp = val_idx.index(min(tb_mtx[p_val - 1][t_val - 1])) 
-    next_targ = temp + 1
-    targs.append(off_val + next_targ)
-
-    # print(f'Next Targ:  {next_targ}')
-    # print(f'Targets:    {targs}')
-    # print('\n')
-    
-    # Recursive calls if worst case happens / increment offset value in else
-    if (mtx[p_val - 1][t_val - next_targ - 1]) < (mtx[p_val - 2][next_targ - 2]):
-        traceback(p_val - 1, next_targ - 1, off_val, mtx, tb_mtx, targs)
-
+    # If the value in the TB table is less than 0, we append a negative 
+    # value plus the offset value
+    if val_idx < 0:
+        targs_attempted.append(-(targ + off_val))
     else:
-        traceback(p_val, t_val - next_targ, next_targ + off_val, mtx, tb_mtx, targs)
+        targs_attempted.append(targ + off_val)
 
+    # If the value in the TB table is greater than 0, we can increment
+    # the offset value by the absolute value of the table's value
+    if val_idx > 0: 
+        off_val += targ
+
+    # Recursion 
+    if tb_mtx[p_val][t_val] < 0 and p_val > 1:
+        traceback(p_val - 1, t_val - (t_val - targ + 1), off_val)
+    else:
+        traceback(p_val, t_val - targ, off_val)
 
 
 if __name__ == '__main__':
@@ -93,15 +111,31 @@ if __name__ == '__main__':
     t = int(sys.argv[2])
     targs_attempted = []
 
-    mtx = [[-1 for j in range(t + 1)] for i in range(p)]
-    tb_mtx = [[-1 for j in range(t + 1)] for i in range(p)]
+    # Create matrices
+    mtx = [[0 for j in range(t + 1)] for i in range(p)]
+    tb_mtx = [[0 for j in range(t + 1)] for i in range(p)]
 
+    # Deal with the base cases
+    for i in range(1, t + 1):
+        mtx[0][i] = i
+        
     for i in range(1, p):
-        for j in range(1, t):
-            mtx[i - 1][j - 1] = dp(i, j)   
+        mtx[i][1] = 1
+        
+    for i in range(2, t + 1):
+        tb_mtx[0][i] = 1
+        
+    for i in range(0, p):
+        tb_mtx[i][1] = -1
 
-    sol = dp(p, t)
-    traceback(p, t, 0, mtx, tb_mtx, targs_attempted)
+    # Call DP algorithm
+    for i in range(1, p):
+        for j in range(2, t + 1):
+            mtx[i][j] = dp(i, j)   
+
+    # Print solution
+    sol = mtx[p - 1][t]
+    traceback(p - 1, t, 0)
     print(sol)
     print(str(' '.join(map(str, targs_attempted))))
 
@@ -142,3 +176,10 @@ if __name__ == '__main__':
 
     # global variables used as counters for the recursive 
     # and Dynamic Progamming algorithms
+
+     # Recursive calls if worst case happens / increment offset value in else
+    # if (mtx[p_val - 1][next_targ -1 ]) >= (mtx[p_val - 1][t_val - 1]):
+    #     traceback(p_val - 1, next_targ - 1, off_val, mtx, tb_mtx, targs)
+    # else:
+    #     traceback(p_val, t_val - next_targ, next_targ + off_val, mtx, tb_mtx, targs)
+    # traceback(p_val - 1, next_targ - 1, off_val, mtx, tb_mtx, targs)
