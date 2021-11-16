@@ -60,24 +60,16 @@ def dp(p_val, t_val):
 
     # Set the value in the array
     mtx[p_val][t_val] = min(max_vals)
-
-    # Cant do this here - WRONG
-    # tb_mtx[p_val][t_val] = min(tb_vals)
-
     # Return min 
     return min(max_vals)
 
 def traceback(p_val, t_val, off_val):
-    # print(f'P: {p_val}')
-    # print(f'T: {t_val}')
+
     val_idx = tb_mtx[p_val][t_val]
     if val_idx < 0:
         targ = val_idx * -1
     else:
         targ = val_idx
-    # targ = abs(val_idx)
-    # print(f'val_idx: {val_idx}')
-    # print(f'x: {targ}\n')
 
     # If the target value drops below 1, we can return because there
     # is nothing left to do. The targets attempted array should be filled
@@ -156,30 +148,4 @@ if __name__ == '__main__':
     # print('===============================')
     # print(f'Time: {time.time() - start}\n')
     # print('\n')
-    # for i in targs_attempted:
-    #     print(f'{i}')
-    # print('\n')
-
-    # Need this to run the recursive algo with larger inputs
-    # Start timer to calc. runtime of dp/rec. algos.
-
-    # Initialize Counter to keep track of amount of calls to this func.
-    # Make sure this the correct count & includes the initial call
-
-    # If the targets num. is zero or one, return the target value
-    # If the pumpkin num. is one, return the target value
-
-    
-    # Set value in matrix - keeping track of calculated values
-    # to avoid recomputation
-    # Return minimum val. that maxmizes number of throws
-
-    # global variables used as counters for the recursive 
-    # and Dynamic Progamming algorithms
-
-     # Recursive calls if worst case happens / increment offset value in else
-    # if (mtx[p_val - 1][next_targ -1 ]) >= (mtx[p_val - 1][t_val - 1]):
-    #     traceback(p_val - 1, next_targ - 1, off_val, mtx, tb_mtx, targs)
-    # else:
-    #     traceback(p_val, t_val - next_targ, next_targ + off_val, mtx, tb_mtx, targs)
-    # traceback(p_val - 1, next_targ - 1, off_val, mtx, tb_mtx, targs)
+  
